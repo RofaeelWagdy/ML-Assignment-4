@@ -1,20 +1,25 @@
 import numpy as np
 
 # --- Activation Functions ---
-def relu(x): return np.maximum(0, x)
-def relu_deriv(x): return (x > 0).astype(float)
+def relu(x): 
+    return np.maximum(0, x)
+def relu_deriv(x): 
+    return (x > 0).astype(float)
 
-def sigmoid(x): return 1 / (1 + np.exp(-np.clip(x, -500, 500)))
+def sigmoid(x): 
+    return 1 / (1 + np.exp(-np.clip(x, -500, 500)))
 def sigmoid_deriv(x): 
     s = sigmoid(x)
     return s * (1 - s)
 
-def tanh(x): return np.tanh(x)
-def tanh_deriv(x): return 1 - np.tanh(x)**2
+def tanh(x): 
+    return np.tanh(x)
+def tanh_deriv(x): 
+    return 1 - np.tanh(x)**2
 
 class Autoencoder:
     def __init__(self, layers, activations, lr=0.001, l2_reg=0.01):
-        self.layers = layers  # e.g., [30, 20, 15, 10, 2, 10, 15, 20, 30]
+        self.layers = layers 
         self.activations = activations
         self.lr = lr
         self.l2_reg = l2_reg
@@ -45,7 +50,7 @@ class Autoencoder:
         return self.a[-1]
 
     def get_bottleneck(self, X):
-        # Bottleneck is the middle layer (index 4 for a 9-layer list)
+        # Bottleneck is the middle layer
         mid = len(self.layers) // 2
         out = X
         for i in range(mid):
@@ -92,7 +97,7 @@ class GMM:
 
     def _gaussian_pdf(self, X, mean, cov):
         d = X.shape[1]
-        cov += 1e-6 * np.eye(d) # Stability
+        cov += 1e-6 * np.eye(d)
         det = np.linalg.det(cov)
         inv = np.linalg.inv(cov)
         diff = X - mean
