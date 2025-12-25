@@ -37,7 +37,6 @@ class PCA:
     def inverse_transform(self, Z):
         return (self.U_ @ Z.T).T + self.mu_
 
-    def reconstruction_error(self, X):
-        Z = self.transform(X)
+    def reconstruction_error(self, X,Z):
         X_hat = self.inverse_transform(Z)
         return np.mean((X - X_hat) ** 2)
