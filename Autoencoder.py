@@ -57,6 +57,15 @@ class Autoencoder:
             act_fn, _ = self._get_act(self.activations[i])
             out = act_fn(np.dot(out, self.weights[i]) + self.biases[i])
         return out
+    
+    def decode(self, Z):
+        # Decoder starts from the middle layer
+        mid = len(self.layers) // 2
+        out = Z
+        for i in range(mid, len(self.weights)):
+            act_fn, _ = self._get_act(self.activations[i])
+            out = act_fn(np.dot(out, self.weights[i]) + self.biases[i])
+        return out
 
     def backward(self, X):
         m = X.shape[0]
