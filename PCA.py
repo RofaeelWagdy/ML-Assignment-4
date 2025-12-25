@@ -5,38 +5,38 @@ class PCA:
         self.n_components = n_components
 
     def fit(self, X):
-        # Mean center the data
-        self.mean_ = np.mean(X, axis=0)
-        X_centered = X - self.mean_
+        # Mean
+        self.mu_ = np.mean(X, axis=0)
+
+        # Center data
+        X_centered = X - self.mu_
 
         # Covariance matrix
-        cov_matrix = np.cov(X_centered, rowvar=False)
+        C = np.cov(X_centered, rowvar=False)
 
         # Eigen decomposition
-        eigenvalues, eigenvectors = np.linalg.eigh(cov_matrix)
+        eigenvalues, eigenvectors = np.linalg.eigh(C)
 
-        # Sort eigenvalues and eigenvectors in descending order
-        sorted_idx = np.argsort(eigenvalues)[::-1]
-        self.eigenvalues_ = eigenvalues[sorted_idx]
-        self.eigenvectors_ = eigenvectors[:, sorted_idx]
+        # Sort descending
+        idx = np.argsort(eigenvalues)[::-1]
+        eigenvalues = eigenvalues[idx]
+        eigenvectors = eigenvectors[:, idx]
 
-        # Select top k components
-        self.components_ = self.eigenvectors_[:, :self.n_components]
+        # Store top-k
+        self.eigenvalues_ = eigenvalues[:self.n_components]
+        self.U_ = eigenvectors[:, :self.n_components]
 
-        # Explained variance ratio
-        total_variance = np.sum(self.eigenvalues_)
-        self.explained_variance_ratio_ = (
-            self.eigenvalues_[:self.n_components] / total_variance
-        )
+        total_variance = np.sum(eigenvalues)
+        self.explained_variance_ratio_ = self.eigenvalues_ / total_variance
 
     def transform(self, X):
-        X_centered = X - self.mean_
-        return np.dot(X_centered, self.components_)
+        X_centered = X - self.mu_
+        Z = self.U_.T @ X_centered.T
+        return Z.T
 
     def inverse_transform(self, Z):
-        return np.dot(Z, self.components_.T) + self.mean_
+        return (self.U_ @ Z.T).T + self.mu_
 
-    def reconstruction_error(self, X):
-        Z = self.transform(X)
-        X_reconstructed = self.inverse_transform(Z)
-        return np.mean((X - X_reconstructed) ** 2)
+    def reconstruction_error(self, X,Z):
+        X_hat = self.inverse_transform(Z)
+        return np.mean((X - X_hat) ** 2)
