@@ -5,7 +5,7 @@ from scipy.optimize import linear_sum_assignment
 
 ## Internal Metrics
 
-def silhouette_score(X, labels):
+def calculate_silhouette_score(X, labels):
 
     """
     Equation: s(i) = (b(i) - a(i)) / max(a(i), b(i))
@@ -49,7 +49,7 @@ def silhouette_score(X, labels):
         denom = max(a_i, b_i)
         silhouette_scores[i] = (b_i - a_i) / denom if denom > 0 else 0.0
 
-    return np.mean(silhouette_scores)
+    return np.mean(silhouette_scores), silhouette_scores
 
 
 def calculate_davies_bouldin(X, labels, centroids):
