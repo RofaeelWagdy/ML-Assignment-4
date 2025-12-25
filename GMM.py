@@ -38,7 +38,7 @@ class GMM:
             
             # Update means
             for j in range(self.k):
-                self.means[j] = np.sum(resp[:, [j]] * X, axis=0) / nk[j]
+                self.means[j] = np.sum(resp[:, [j]] * X, axis=0) / (nk[j] + 1e-9)
 
             # Update covariances
             if self.cov_type == 'tied':
@@ -53,11 +53,11 @@ class GMM:
                 for j in range(self.k):
                     diff = X - self.means[j]
                     if self.cov_type == 'full':
-                        self.covs[j] = np.dot((resp[:, [j]] * diff).T, diff) / nk[j]
-                    elif self.cov_type == 'diagonal':
-                        self.covs[j] = np.diag(np.sum(resp[:, [j]] * (diff**2), axis=0) / nk[j])
+                        self.covs[j] = np.dot((resp[:, [j]] * diff).T, diff) / (nk[j] + 1e-9)
+                    elif self.cov_type == 'diag':
+                        self.covs[j] = np.diag(np.sum(resp[:, [j]] * (diff**2), axis=0) / (nk[j] + 1e-9))
                     elif self.cov_type == 'spherical':
-                        avg_var = np.sum(resp[:, [j]] * (diff**2)) / (nk[j] * d)
+                        avg_var = np.sum(resp[:, [j]] * (diff**2)) / (nk[j] + 1e-9)
                         self.covs[j] = np.eye(d) * avg_var
 
             curr_ll = np.sum(np.log(sum_probs))
@@ -70,7 +70,7 @@ class GMM:
             cov_params = self.k * d * (d + 1) / 2
         elif self.cov_type == 'tied':
             cov_params = d * (d + 1) / 2
-        elif self.cov_type == 'diagonal':
+        elif self.cov_type == 'diag':
             cov_params = self.k * d
         elif self.cov_type == 'spherical':
             cov_params = self.k
@@ -78,3 +78,4 @@ class GMM:
         p = (self.k * d) + cov_params + (self.k - 1)
         self.bic = -2 * self.ll_history[-1] + p * np.log(n)
         self.aic = -2 * self.ll_history[-1] + 2 * p
+        return self.ll_history
